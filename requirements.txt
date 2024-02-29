@@ -2,3 +2,4 @@ opencv-python
 opencv_contrib_python
 numpy
 yolo
+ultralytics

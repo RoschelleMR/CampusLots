@@ -1,44 +1,40 @@
 import cv2
 import numpy as np
+from ultralytics import YOLO
 
 #Web Camera
-
 cap = cv2.VideoCapture('video2.mp4')
 
-
-# Initialize Substractor
-algo = cv2.bgsegm.createBackgroundSubtractorMOG()
+#Import YOLO
+yolo_version = 'yolov8n.pt'
+model = YOLO(yolo_version)
 
 # WHILE LOOP: Continuously have the window open until exit key is pressed
 # or all frames have been displayed
 while True:
     
     ret,frame = cap.read()
-    grey = cv2.cvtColor(frame,cv2.COLOR_BGR2GRAY)
-    blur = cv2.GaussianBlur(grey,(3,3),5)
+    results = model.track(frame, persist=True) #PERSIST: When True, the model will set ids to previously discovered detections in subsequent frames
     
-    # applying on each frame
-    img_sub = algo.apply(blur)
-    dilat = cv2.dilate(img_sub,np.ones((5,5)))
-    kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(5,5))
-    dilatada = cv2.morphologyEx(dilat, cv2.MORPH_CLOSE, kernel)
-    dilatada = cv2.morphologyEx(dilatada, cv2.MORPH_CLOSE, kernel)
-    counterShape = cv2.findContours(dilatada, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    # Visualize the results of the model on the frame in a bounding box
+    annotated_frame = results[0].plot()
     
+    # display lines on video capture
     
-    # display line on video capture
-    cv2.line(frame, (0,500), (1280,500), (222, 49, 99), 4, 2)
+    # right line
+    cv2.line(annotated_frame, (800,500), (1240,500), (222, 49, 99), 4, 2)
     
+    # left line
+    cv2.line(annotated_frame, (750,500), (250,500), (20, 49, 200), 4, 2)
     
-    # for (i,c) in enumerate(counterShape):
-    #     (x,y,w,h) = cv2.boundingRect()
+    cv2.putText(annotated_frame, 'COUNT: ', (50, 50) , cv2.FONT_HERSHEY_SIMPLEX , 1,  
+                 (0, 50, 255) , 4, cv2.LINE_AA, False) 
     
+    # Display the annotated frame
+    cv2.imshow("YOLOv8 Tracking", annotated_frame)
+
     
-    # cv2.imshow('Detector', dilatada) # displays frames
-    
-    cv2.imshow('Original', frame) # displays frames
-    
-    if cv2.waitKey(100) & 0xFF == ord('q'): #change frame every 0.1s, exit by pressing q
+    if cv2.waitKey(1) & 0xFF == ord('q'): #change frame every 0.1s, exit by pressing q
         break
   
 cap.release() 
