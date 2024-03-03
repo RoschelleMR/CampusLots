@@ -9,7 +9,7 @@ if device == "0":
     torch.cuda.set_device(0)
 
 #Web Camera
-cap = cv2.VideoCapture('video2.mp4')
+cap = cv2.VideoCapture('video2_low quality.mp4')
 
 #Import YOLO
 yolo_version = 'yolov8n.pt'
@@ -20,10 +20,17 @@ model = YOLO(yolo_version)
 while True:
     
     ret,frame = cap.read()
+    ret2,frame2 = cap.read()
+    ret3, frame3 = cap.read()
+    
     results = model.track(frame, persist=False) #PERSIST: When True, the model will set ids to previously discovered detections in subsequent frames
+    results2 = model.track(frame2, persist=False)
+    results3 = model.track(frame3, persist=False)
     
     # Visualize the results of the model on the frame in a bounding box
     annotated_frame = results[0].plot()
+    annotated_frame2 = results2[0].plot()
+    annotated_frame3 = results3[0].plot()
     
     # display lines on video capture
     
@@ -38,7 +45,8 @@ while True:
     
     # Display the annotated frame
     cv2.imshow("YOLOv8 Tracking", annotated_frame)
-
+    cv2.imshow("YOLOv8 2nd", annotated_frame2)
+    cv2.imshow("YOLOv8 3nd", annotated_frame3)
     
     if cv2.waitKey(1) & 0xFF == ord('q'): #change frame every 0.1s, exit by pressing q
         break
