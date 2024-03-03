@@ -1,6 +1,12 @@
 import cv2
 import numpy as np
 from ultralytics import YOLO
+import torch
+
+# USE GPU
+device = "0" if torch.cuda.is_available() else "cpu"
+if device == "0":
+    torch.cuda.set_device(0)
 
 #Web Camera
 cap = cv2.VideoCapture('video2.mp4')
@@ -14,7 +20,7 @@ model = YOLO(yolo_version)
 while True:
     
     ret,frame = cap.read()
-    results = model.track(frame, persist=True) #PERSIST: When True, the model will set ids to previously discovered detections in subsequent frames
+    results = model.track(frame, persist=False) #PERSIST: When True, the model will set ids to previously discovered detections in subsequent frames
     
     # Visualize the results of the model on the frame in a bounding box
     annotated_frame = results[0].plot()
